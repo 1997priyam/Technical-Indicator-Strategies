@@ -3,6 +3,10 @@ import re
 from functools import reduce
 from dateutil import parser
 from stock_list import stock_list
+from numpy import *
+import math
+import utils
+
 
 EMA_SOURCE = 'close'
 CLOSE_COLUMN_NUMBER = 5
@@ -14,8 +18,9 @@ EMA_FOR_DAYS = {
     20: 0.15,
     30: 0.07
 }
-# candles = []
 
+
+    
 # Reads the input file and saves to `candles` all the candles found. Each candle is
 # a dict with the timestamp and the OHLC values.
 def read_candles(csv_file_name):
@@ -29,21 +34,32 @@ def read_candles(csv_file_name):
                     'close': float(row[CLOSE_COLUMN_NUMBER - 1])
                 })
             except Exception as e:
-                print('Error parsing {}'.format(row))
-                print(e)
+                pass
+                # print('Error parsing {}'.format(row))
     return candles
 
 def isCrossover(candles, stock_name):
     variable_names = ["ema_{}".format(days) for days in EMA_FOR_DAYS]
     crossover_data = []
-    for candle in candles:
-        flag = True
-        for i in range(len(variable_names) - 1):
-            if (candle[variable_names[i]] != candle[variable_names[i+1]]):
-                flag = False
-        if flag:
-            candle["stock"] = stock_name
-            crossover_data.append(candle)
+    for i in range(len(candles) - 1):
+        intersection_points = []
+        for j in range(len(variable_names) - 1):
+            p1 = array([float(i), candles[i][variable_names[j]]])
+            p2 = array([float(i+1), candles[i+1][variable_names[j]]])
+            p3 = array([float(i), candles[i][variable_names[j+1]]])
+            p4 = array([float(i+1), candles[i+1][variable_names[j+1]]])
+            point = utils.seg_intersect(p1, p2, p3, p4)
+            if utils.validate_point(point, [p1[0], p2[0]]):
+                intersection_points.append(point)
+            else:
+                intersection_points = []
+                break
+
+        if(len(intersection_points) > 0):
+            if utils.arePointsEqual(intersection_points):
+                candles[i]["stock"] = stock_name
+                crossover_data.append(candles[i])
+                crossover_data.append(candles[i+1])
     return crossover_data
         
 
@@ -111,5 +127,10 @@ if __name__ == '__main__':
         crossover_final.extend(crossover_data)
 
     if (len(crossover_final) > 0):
-        for data in crossover_final:
-            print("Crossover Detected--> STOCK: {}      DATE: {}".format(data["stock"], data["ts"]))
+        for i in range(len(crossover_final) // 2):
+            print("Crossover Detected--> STOCK: {}    BETWEEN DATE: {} and {}".format(
+                crossover_final[2*i]["stock"], 
+                crossover_final[2*i]["ts"].strftime("%d-%m-%Y"), 
+                crossover_final[(2*i)+1]["ts"].strftime("%d-%m-%Y")))
+    else:
+        print("NO CROSSOVER")
