@@ -2,25 +2,11 @@ import csv
 import re
 from functools import reduce
 from dateutil import parser
-from stock_list import stock_list
 from numpy import *
 import math
 import utils
-
-
+from config import *
 EMA_SOURCE = 'close'
-CLOSE_COLUMN_NUMBER = 5
-TIMESTAMP_COLUMN_NUMBER = 3
-DAYS_TO_OBSERVE = 3
-DECIMAL_PLACES = 2
-EMA_FOR_DAYS = {
-    10: 0.3,
-    20: 0.15,
-    30: 0.07
-}
-
-
-    
 # Reads the input file and saves to `candles` all the candles found. Each candle is
 # a dict with the timestamp and the OHLC values.
 def read_candles(csv_file_name):
@@ -29,10 +15,11 @@ def read_candles(csv_file_name):
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             try:
-                candles.append({
-                    'ts': parser.parse(row[TIMESTAMP_COLUMN_NUMBER - 1]),
-                    'close': float(row[CLOSE_COLUMN_NUMBER - 1])
-                })
+                if (row[1] == "EQ"):
+                    candles.append({
+                        'ts': parser.parse(row[TIMESTAMP_COLUMN_NUMBER - 1]),
+                        'close': float(row[CLOSE_COLUMN_NUMBER - 1])
+                    })
             except Exception as e:
                 pass
                 # print('Error parsing {}'.format(row))
@@ -84,8 +71,8 @@ def calculate_ema(candles, source, days):
     else:
         # multiplier: (2 / (length + 1))
         # EMA: (close * multiplier) + ((1 - multiplier) * EMA(previous))
-        # multiplier = 2 / (length + 1)
-        multiplier = EMA_FOR_DAYS[days]
+        multiplier = 2 / (length + 1)
+        # multiplier = EMA_FOR_DAYS[days]
         ema = (target[source] * multiplier) + (previous[ema_name] * (1 - multiplier))
 
         return ema
