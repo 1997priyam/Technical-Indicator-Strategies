@@ -1,5 +1,6 @@
 from numpy import *
 import math
+from config import DECIMAL_PLACES
 
 def perp( a ) :
     b = empty_like(a)
@@ -21,9 +22,9 @@ def seg_intersect(a1,a2, b1,b2) :
     return out
 
 def validate_point(point, range):
-    for cord in point:
-        if (math.isnan(cord) or math.isinf(cord)):
-            return False
+    if isnan(point).any() or isinf(point).any() or isneginf(point).any():
+        return False
+
     if(point[0] >= range[0] and point[0] <= range[1]):
         return True
     else:

@@ -6,23 +6,36 @@ from numpy import *
 import math
 import utils
 from config import *
+from zerodha import *
+
 EMA_SOURCE = 'close'
+
+
+zerodha = get_zerodha_client(ZERODHA_CONFIG)
+instruments = zerodha.instruments("NSE")
+stock_list = filter_instruments(instruments)
 # Reads the input file and saves to `candles` all the candles found. Each candle is
 # a dict with the timestamp and the OHLC values.
-def read_candles(csv_file_name):
-    candles = []
-    with open(csv_file_name, 'r') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        for row in reader:
-            try:
-                if (row[1] == "EQ"):
-                    candles.append({
-                        'ts': parser.parse(row[TIMESTAMP_COLUMN_NUMBER - 1]),
-                        'close': float(row[CLOSE_COLUMN_NUMBER - 1])
-                    })
-            except Exception as e:
-                pass
-                # print('Error parsing {}'.format(row))
+
+
+# def read_candles(csv_file_name):
+#     candles = []
+#     with open(csv_file_name, 'r') as csvfile:
+#         reader = csv.reader(csvfile, delimiter=',')
+#         for row in reader:
+#             try:
+#                 if (row[1] == "EQ"):
+#                     candles.append({
+#                         'ts': parser.parse(row[TIMESTAMP_COLUMN_NUMBER - 1]),
+#                         'close': float(row[CLOSE_COLUMN_NUMBER - 1])
+#                     })
+#             except Exception as e:
+#                 pass
+#                 # print('Error parsing {}'.format(row))
+#     return candles
+
+def read_candles(stock):
+    candles = get_data_of_stock(zerodha, stock, DURATION_OF_DATA, "day")
     return candles
 
 def isCrossover(candles, stock_name):
@@ -79,22 +92,41 @@ def calculate_ema(candles, source, days):
 
 def calculate(candles, source, days):
     sma_name = "sma_{}".format(days)
-    candles[0][sma_name] = round(calculate_sma(candles, source), DECIMAL_PLACES)
+    # candles[0][sma_name] = round(calculate_sma(candles, source), DECIMAL_PLACES)
+    candles[0][sma_name] = calculate_sma(candles, source)
     ema_name = "ema_{}".format(days)
-    candles[0][ema_name] = round(calculate_ema(candles, source, days), DECIMAL_PLACES)
+    # candles[0][ema_name] = round(calculate_ema(candles, source, days), DECIMAL_PLACES)
+    candles[0][ema_name] = calculate_ema(candles, source, days)
+
+
+def dump_set_to_file(stockSet):
+    if(len(stockSet) == 0):
+        return
+    with open(FINAL_FILENAME, 'a') as final_file:
+        for stock in stockSet:
+            if (isinstance(stock, str)):
+                final_file.write("{}\n".format(stock))
+            else:
+                final_file.write("{}\n".format(stock["stock"]))
+                break
 
 if __name__ == '__main__':
     crossover_final = []
+    stock_set = set()
     for stock in stock_list:
         candles = []
         file_name = "data/{}.csv".format(stock)
         try:
-            candles = read_candles(file_name)
-        except FileNotFoundError:
-            print("Data file for {} not found".format(stock))
+            # candles = read_candles(file_name)
+            candles = read_candles(stock)
+            if(len(candles) == 0):
+                continue
+        except Exception:
+            pass
+            # print("Data file for {} not found".format(stock))
         # progress through the array of candles to calculate the indicators for each
         # block of candles
-
+        stock = stock["stock"]
         for days in EMA_FOR_DAYS:
             position = 0
             while position + days <= len(candles):
@@ -103,21 +135,29 @@ if __name__ == '__main__':
                 calculate(current_candles, EMA_SOURCE, days)
                 position += 1
 
-        for candle in candles:
-            try:
-                print('{}: stock: {}  ema_10={}  ema_20={}  ema_30={}'.format(candle['ts'], stock, candle['ema_10'], candle['ema_20'], candle['ema_30']))
-            except Exception:
-                pass
+        # for candle in candles:
+        #     try:
+        #         print('{}: stock: {}  ema_10={}  ema_20={}  ema_30={}'.format(candle['ts'], stock, candle['ema_10'], candle['ema_20'], candle['ema_30']))
+        #     except Exception:
+        #         pass
 
         # print(candles[DAYS_TO_OBSERVE * -1 :])
-        crossover_data = isCrossover(candles[DAYS_TO_OBSERVE * -1 :], stock)
-        crossover_final.extend(crossover_data)
+        try:
+            crossover_data = isCrossover(candles[DAYS_TO_OBSERVE * -1 :], stock)
+            crossover_final.extend(crossover_data)
+            if(len(crossover_data) > 0):
+                print(crossover_data)
+                dump_set_to_file(crossover_data)
+        except Exception as e:
+            print("crossover block: ", e)
 
     if (len(crossover_final) > 0):
         for i in range(len(crossover_final) // 2):
-            print("Crossover Detected--> STOCK: {}    BETWEEN DATE: {} and {}".format(
-                crossover_final[2*i]["stock"], 
-                crossover_final[2*i]["ts"].strftime("%d-%m-%Y"), 
-                crossover_final[(2*i)+1]["ts"].strftime("%d-%m-%Y")))
+            stock_set.add(crossover_final[2*i]["stock"])
+            # print("Crossover Detected--> STOCK: {}    BETWEEN DATE: {} and {}".format(
+            #     crossover_final[2*i]["stock"], 
+            #     crossover_final[2*i]["ts"].strftime("%d-%m-%Y"), 
+            #     crossover_final[(2*i)+1]["ts"].strftime("%d-%m-%Y")))
     else:
         print("NO CROSSOVER")
+    dump_set_to_file(stock_set)
