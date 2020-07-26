@@ -1,5 +1,4 @@
 import pandas as pd
-from ta.utils import dropna
 from ta.momentum import RSIIndicator
 import json
 from kiteconnect import KiteConnect, KiteTicker
@@ -7,12 +6,11 @@ import datetime
 import sys
 import time
 
-DURATION_OF_DATA = 50
-CANDLE_SIZE = "monthly"  # 1minute, 15minute, 30minute, 60minute, day, weekly, monthly
+CANDLE_SIZE = "60minute"  # 1minute, 15minute, 30minute, 60minute, day, weekly, monthly
 
 ZERODHA_CONFIG = {
     "API_KEY": "rtrb09gubf9ttq4d",
-    "ACCESS_TOKEN": "yO46xgcjwI1OustSw3knAsy74hZECZi8"
+    "ACCESS_TOKEN": "7Hfeq90fzt9noY1PzPzi7FerkoKnTWZ2"
 }
 stock_list = [
     "ACC","ADANIENT","ADANIPORTS","AMARAJABAT","AMBUJACEM","APOLLOHOSP",
@@ -38,6 +36,7 @@ stock_list = [
     "TORNTPOWER","TVSMOTOR","UJJIVAN","ULTRACEMCO","UBL","MCDOWELL-N","UPL",
     "VEDL","VOLTAS","WIPRO","ZEEL","NIFTY 50","NIFTY BANK"
 ]
+
 CANDLES_TO_OBSERVE = 1
 CROSSOVER_VALUE = 50
 RSI_DAYS = 14
@@ -75,16 +74,19 @@ def filter_instruments(instruments):
             })
     return final_frame
 
-def get_data_of_stock(zerodha, stock, duration, interval):
+def get_data_of_stock(zerodha, stock, interval):
     org_interval = interval
+    duration = 0
     if(interval == "weekly"):
         duration = 200
         interval = "day"
     elif(interval == "monthly"):
         duration = 750
         interval = "day"
+    elif(interval == "day"):
+        duration = 50
     else:
-        pass
+        duration = 25
     startDate = datetime.date.today() - datetime.timedelta(duration)
     endDate = datetime.date.today()
     data = zerodha.historical_data(stock["instrument_token"], startDate, endDate, interval)
@@ -138,14 +140,14 @@ def main():
     stock_list = filter_instruments(instruments)
     for stock in stock_list:
         try:
-            candles = get_data_of_stock(zerodha, stock, DURATION_OF_DATA, CANDLE_SIZE)
+            candles = get_data_of_stock(zerodha, stock, CANDLE_SIZE)
             rsi = RSIIndicator(close=candles['close'], n=RSI_DAYS)
             if (CANDLES_TO_OBSERVE == 1):
                 get_range(rsi.rsi().tail(CANDLES_TO_OBSERVE), stock["stock"])
             else:
                 crossovers = get_crossovers(rsi.rsi().tail(CANDLES_TO_OBSERVE))
                 print_crossovers(crossovers, stock["stock"])
-            time.sleep(0.2)
+            time.sleep(0.1)
         except Exception as e:
             print(e)
             pass
