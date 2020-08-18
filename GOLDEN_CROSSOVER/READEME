@@ -1,0 +1,8 @@
+Note: Please signup on finhub.io and get your API Key, After getting the API_KEY enter it inside main.py file in the respective field
+
+Please follow the following steps to run this Python Program:
+1. Change direcotry into this folder
+2. Run the command: pip3 install -r requirements.txt
+3. Set the parameters in the top of the file main.py
+4. Run the file with the command: python3 main.py
+5. A file named crossover.txt will be created which will list all the picks.

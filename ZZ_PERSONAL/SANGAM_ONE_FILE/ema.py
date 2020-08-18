@@ -1,65 +1,25 @@
 DAYS_TO_OBSERVE = 5
-DECIMAL_PLACES = 1
-DURATION_OF_DATA = 90
+DECIMAL_PLACES = 2
+DURATION_OF_DATA = 80
 EMA_FOR_DAYS = {
-    9: 0,
-    21: 0,
-    55: 0
+    5: 0.33,       #9, 21, 55
+    13: 0.14,      # 5:0.33, 13:0.14, 26:0.074
+    26: 0.074     # 9, 12, 26
+                # 13, 55
+                # 20, 50, 200
 }
-
-creds = {
-    "API_KEY": "rtrb09gubf9ttq4d",
-    "ACCESS_TOKEN": "yO46xgcjwI1OustSw3knAsy74hZECZi8"
-}
-
-TICKERS = ["ACC","ADANIENT","ADANIPORTS","AMARAJABAT","AMBUJACEM","APOLLOHOSP",
-    "APOLLOTYRE","ASHOKLEY","ASIANPAINT","AUROPHARMA","AXISBANK",
-    "BAJAJ-AUTO","BAJFINANCE","BAJAJFINSV","BALKRISIND","BANDHANBNK",
-    "BANKBARODA","BATAINDIA","BERGEPAINT","BEL","BHARATFORG","BPCL",
-    "BHARTIARTL","INFRATEL","BHEL","BIOCON","BOSCHLTD","BRITANNIA",
-    "CADILAHC","CANBK","CENTURYTEX","CHOLAFIN","CIPLA","COALINDIA",
-    "COLPAL","CONCOR","CUMMINSIND","DABUR","DIVISLAB","DLF","DRREDDY",
-    "EICHERMOT","EQUITAS","ESCORTS","EXIDEIND","FEDERALBNK","GAIL",
-    "GLENMARK","GMRINFRA","GODREJCP","GODREJPROP","GRASIM","HAVELLS",
-    "HCLTECH","HDFCBANK","HDFC","HDFCLIFE","HEROMOTOCO","HINDALCO",
-    "HINDPETRO","HINDUNILVR","ICICIBANK","ICICIPRULI","NAUKRI","IDEA",
-    "IDFCFIRSTB","IBULHSGFIN","IOC","IGL","INDUSINDBK","INFY","INDIGO",
-    "ITC","JINDALSTEL","JSWSTEEL","JUBLFOOD","JUSTDIAL","KOTAKBANK","L&TFH",
-    "LT","LICHSGFIN","LUPIN","M&MFIN","MGL","M&M","MANAPPURAM","MARICO",
-    "MARUTI","MFSL","MINDTREE","MOTHERSUMI","MRF","MUTHOOTFIN","NATIONALUM",
-    "NCC","NESTLEIND","NIITTECH","NMDC","NTPC","ONGC","PAGEIND","PETRONET",
-    "PIDILITIND","PEL","PFC","POWERGRID","PNB","PVR","RBLBANK","RELIANCE",
-    "RECLTD","SHREECEM","SRTRANSFIN","SIEMENS","SRF","SBIN","SBILIFE",
-    "SAIL","SUNPHARMA","SUNTV","TATACHEM","TCS","TATACONSUM","TATAMOTORS",
-    "TATAPOWER","TATASTEEL","TECHM","RAMCOCEM","TITAN","TORNTPHARM",
-    "TORNTPOWER","TVSMOTOR","UJJIVAN","ULTRACEMCO","UBL","MCDOWELL-N","UPL",
-    "VEDL","VOLTAS","WIPRO","ZEEL","NIFTY 50","NIFTY BANK"]
+TICKER_FILE = "../tickers_nse.csv"
 
 import csv
 import re
 from functools import reduce
 from dateutil import parser
 from numpy import *
+import requests
 import math
 import json
-from kiteconnect import KiteConnect, KiteTicker
 import datetime
-
-
-def get_zerodha_client(creds):
-    zerodha = KiteConnect(api_key = creds["API_KEY"])
-    zerodha.set_access_token(creds["ACCESS_TOKEN"])
-    return zerodha
-
-def filter_instruments(instruments):
-    final_frame = []
-    for data in instruments:
-        if(data["instrument_type"] == "EQ"):  # "EQ" and data["tradingsymbol"] in TICKERS
-            final_frame.append({
-                "instrument_token": data["instrument_token"],
-                "stock": data["tradingsymbol"]
-            })
-    return final_frame
+import nsepy
 
 def get_data_of_stock(zerodha, stock, duration, interval):
     startDate = datetime.date.today() - datetime.timedelta(duration)
@@ -105,11 +65,16 @@ def arePointsEqual(points):
 EMA_SOURCE = 'close'
 FINAL_FILENAME = "sangam"
 
-
-zerodha = get_zerodha_client(creds)
-instruments = zerodha.instruments("NSE")
-stock_list = filter_instruments(instruments)
-
+def get_tickers_from_file(filename):
+    tickers = []
+    with open(filename) as tfile:
+        csvreader = csv.reader(tfile)
+        for sym in csvreader:
+            try:
+                tickers.append(sym[0])
+            except Exception:
+                pass
+    return tickers
 
 def read_candles(stock):
     candles = get_data_of_stock(zerodha, stock, DURATION_OF_DATA, "day")
@@ -147,7 +112,6 @@ def calculate_sma(candles, source):
     sma = sum[source] / length
     return sma
 
-# Calculates the EMA of an array of candles using the `source` price.
 def calculate_ema(candles, source, days):
     length = len(candles)
     target = candles[0]
@@ -161,8 +125,8 @@ def calculate_ema(candles, source, days):
     else:
         # multiplier: (2 / (length + 1))
         # EMA: (close * multiplier) + ((1 - multiplier) * EMA(previous))
-        multiplier = 2 / (length + 1)
-        # multiplier = EMA_FOR_DAYS[days]
+        # multiplier = 2 / (length + 1)
+        multiplier = EMA_FOR_DAYS[days]
         ema = (target[source] * multiplier) + (previous[ema_name] * (1 - multiplier))
 
         return ema
@@ -189,22 +153,20 @@ def dump_set_to_file(stockSet):
 if __name__ == '__main__':
     crossover_final = []
     stock_set = set()
-    with open(FINAL_FILENAME, "w"):
-        pass
-
+    try:
+        with open(FINAL_FILENAME, "w"):
+            pass
+    except Exception as e:
+        raise e
+    stock_list = get_tickers_from_file(TICKER_FILE)
     for stock in stock_list:
         candles = []
-        file_name = "data/{}.csv".format(stock)
         try:
-            # candles = read_candles(file_name)
             candles = read_candles(stock)
             if(len(candles) == 0):
                 continue
-        except Exception:
-            pass
-            # print("Data file for {} not found".format(stock))
-        # progress through the array of candles to calculate the indicators for each
-        # block of candles
+        except Exception as e:
+            print(e)
         stock = stock["stock"]
         for days in EMA_FOR_DAYS:
             position = 0

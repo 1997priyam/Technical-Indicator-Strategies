@@ -1,0 +1,5 @@
+get-all-tickers==1.7
+requests
+pandas
+ta
+numpy

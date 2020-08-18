@@ -1,3 +1,9 @@
+CANDLE_SIZE_SET = ["day", "60minute", "5minute"]  # 1minute, 15minute, 30minute, 60minute, day, weekly, monthly
+# CANDLE_SIZE_SET = ["monthly", "weekly", "day"]    # 1minute, 15minute, 30minute, 60minute, day, weekly, monthly
+RSI_A = 45
+RSI_B = 55
+WRITE_TO_FILE = True
+
 import pandas as pd
 from ta.momentum import RSIIndicator
 import json
@@ -5,12 +11,12 @@ from kiteconnect import KiteConnect, KiteTicker
 import datetime
 import sys
 import time
+import csv
 
-CANDLE_SIZE = "60minute"  # 1minute, 15minute, 30minute, 60minute, day, weekly, monthly
 
 ZERODHA_CONFIG = {
-    "API_KEY": "rtrb09gubf9ttq4d",
-    "ACCESS_TOKEN": "7Hfeq90fzt9noY1PzPzi7FerkoKnTWZ2"
+    "API_KEY": "",
+    "ACCESS_TOKEN": ""
 }
 stock_list = [
     "ACC","ADANIENT","ADANIPORTS","AMARAJABAT","AMBUJACEM","APOLLOHOSP",
@@ -78,15 +84,15 @@ def get_data_of_stock(zerodha, stock, interval):
     org_interval = interval
     duration = 0
     if(interval == "weekly"):
-        duration = 200
+        duration = 500
         interval = "day"
     elif(interval == "monthly"):
-        duration = 750
+        duration = 900
         interval = "day"
     elif(interval == "day"):
-        duration = 50
+        duration = 100
     else:
-        duration = 25
+        duration = 50
     startDate = datetime.date.today() - datetime.timedelta(duration)
     endDate = datetime.date.today()
     data = zerodha.historical_data(stock["instrument_token"], startDate, endDate, interval)
@@ -117,6 +123,24 @@ def get_crossovers(rsi_data_points):
             pass
     return crossing_list
 
+def print_range(range_data, stock):
+    if range_data == None or not isinstance(range_data, list):
+        return
+    print_str = ""
+    for each_range in range_data:
+        print_str += each_range + "    "
+    print('%-10s  ---------------> %10s' % (stock, print_str))
+    
+def write_to_file(range_list, stock):
+    write_list = []
+    write_list.append(stock)
+    for value in range_list:
+        value = value[:-2]
+        write_list.append(value)
+    with open("rsi.csv", "a") as write_file:
+        csvwriter = csv.writer(write_file)
+        csvwriter.writerow(write_list)
+
 def get_range(last_candle_rsi, stock):
     if (last_candle_rsi.isnull().all()):
         print("All RSI values are NULL, increase DURATION_OF_DATA")
@@ -125,32 +149,50 @@ def get_range(last_candle_rsi, stock):
         print("Only last candle is required")
         sys.exit(1)
     rsi = last_candle_rsi.iloc[0]
-    if (rsi > 0 and rsi < 45):
-        print('%-10s  ---------------> %10s' % (stock, "D"))
-    elif (rsi > 45 and rsi < 55):
-        print('%-10s  ---------------> %10s' % (stock, "SW"))
-    elif (rsi > 55 and rsi < 100):
-        print('%-10s  ---------------> %10s' % (stock, "U"))
+    rsi = round(rsi, 2)
+    if (rsi > 0 and rsi < RSI_A):
+        # print('%-10s  ---------------> %10s' % (stock, "D"))
+        return "{:.2f} D".format(rsi)
+    elif (rsi > RSI_A and rsi < RSI_B):
+        # print('%-10s  ---------------> %10s' % (stock, "SW"))
+        return "{:.2f} S".format(rsi)
+    elif (rsi > RSI_B and rsi < 100):
+        # print('%-10s  ---------------> %10s' % (stock, "U"))
+        return "{:.2f} U".format(rsi)
     else:
-        pass
+        return None
 
 def main():
     zerodha = get_zerodha_client(ZERODHA_CONFIG)
     instruments = zerodha.instruments("NSE")
     stock_list = filter_instruments(instruments)
+    print_str = ""
+    for candle in CANDLE_SIZE_SET:
+        print_str += candle + "    "
+    print("                               {}".format(print_str))
+    row = ["STOCK"]
+    row.extend(CANDLE_SIZE_SET)
+    with open("rsi.csv", "w") as write_file:
+        csvwriter = csv.writer(write_file)
+        csvwriter.writerow(row)
     for stock in stock_list:
         try:
-            candles = get_data_of_stock(zerodha, stock, CANDLE_SIZE)
-            rsi = RSIIndicator(close=candles['close'], n=RSI_DAYS)
-            if (CANDLES_TO_OBSERVE == 1):
-                get_range(rsi.rsi().tail(CANDLES_TO_OBSERVE), stock["stock"])
-            else:
-                crossovers = get_crossovers(rsi.rsi().tail(CANDLES_TO_OBSERVE))
-                print_crossovers(crossovers, stock["stock"])
-            time.sleep(0.1)
+            range_list = []
+            for CANDLE_SIZE in CANDLE_SIZE_SET:
+                candles = get_data_of_stock(zerodha, stock, CANDLE_SIZE)
+                rsi = RSIIndicator(close=candles['close'], n=RSI_DAYS)
+                if (CANDLES_TO_OBSERVE == 1):
+                    range_stock = get_range(rsi.rsi().tail(CANDLES_TO_OBSERVE), stock["stock"])
+                    range_list.append(range_stock)
+                else:
+                    crossovers = get_crossovers(rsi.rsi().tail(CANDLES_TO_OBSERVE))
+                    print_crossovers(crossovers, stock["stock"])
+                # time.sleep(0.1)
+            print_range(range_list, stock["stock"])
+            if WRITE_TO_FILE:
+                write_to_file(range_list, stock["stock"])
         except Exception as e:
             print(e)
-            pass
 
 if __name__ == "__main__":
     main()

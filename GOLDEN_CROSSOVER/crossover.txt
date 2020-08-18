@@ -1,0 +1,43 @@
+Running on 06-08-2020
+Running on 06-08-2020
+06-08-2020 --- WBAI --- 3.93
+06-08-2020 --- AGD --- 9.25
+Running on 06-08-2020
+06-08-2020 --- WBAI --- 3.93
+Running on 06-08-2020
+06-08-2020 --- WBAI --- 3.93
+Running on 06-08-2020
+06-08-2020 --- WBAI --- 3.98
+Running on 06-08-2020
+Running on 06-08-2020
+Running on 06-08-2020
+Running on 06-08-2020
+Running on 06-08-2020
+06-08-2020 --- WBAI --- 3.95
+Running on 07-08-2020, 20:51
+Running on 07-08-2020, 21:35
+Running on 07-08-2020, 21:35
+Running on 07-08-2020, 21:36
+Running on 07-08-2020, 21:37
+Run Date: 07-08-2020, 21:37 --- Stock: AHC --- Current Price: 1.68 --- Crossover: 9 & 13 on 06-08-2020(1.66), --- Crossover: 9 & 16 on 06-08-2020(1.66), --- Run Date: 07-08-2020, 21:37 --- Stock: AKR --- Current Price: 12.455 --- Crossover: 9 & 13 on 03-08-2020(11.72), --- Crossover: 9 & 16 on 03-08-2020(11.72), --- Run Date: 07-08-2020, 21:37 --- Stock: AGRO --- Current Price: 4.38 --- Crossover: 9 & 13 on 06-08-2020(4.46), --- Crossover: 9 & 16 on 03-08-2020(4.32),05-08-2020(4.3), --- Run Date: 07-08-2020, 21:37 --- Stock: AEG --- Current Price: 3.205 --- Crossover: 9 & 13 on 04-08-2020(3.06), --- Crossover: 9 & 16 on 04-08-2020(3.06), --- Run Date: 07-08-2020, 21:37 --- Stock: AER --- Current Price: 30.32 --- Crossover: 9 & 13 on 04-08-2020(29.34), --- Crossover: 9 & 16 on 04-08-2020(29.34), --- Run Date: 07-08-2020, 21:37 --- Stock: AL --- Current Price: 29.76 --- Crossover: 9 & 13 on 04-08-2020(27.55), --- Crossover: 9 & 16 on 04-08-2020(27.55), --- Run Date: 07-08-2020, 21:37 --- Stock: ALK --- Current Price: 36.13 --- Crossover: 9 & 13 on 06-08-2020(36.42), --- Crossover: 9 & 16 on 06-08-2020(36.42), --- Run Date: 07-08-2020, 21:37 --- Stock: ACI --- Current Price: 15.28 --- Crossover: 9 & 13 on 04-08-2020(15.18), --- Crossover: 9 & 16 on 04-08-2020(15.18), --- Running on 07-08-2020, 21:39
+Running on 07-08-2020, 21:39
+Run Date: 07-08-2020, 21:39 --- Stock: AHC --- Current Price: 1.68 --- Crossover: 9&13 on 06-08-2020(1.66), --- Crossover: 9&16 on 06-08-2020(1.66),Run Date: 07-08-2020, 21:39 --- Stock: AKR --- Current Price: 12.45 --- Crossover: 9&13 on 03-08-2020(11.72), --- Crossover: 9&16 on 03-08-2020(11.72),Run Date: 07-08-2020, 21:39 --- Stock: AGRO --- Current Price: 4.38 --- Crossover: 9&13 on 06-08-2020(4.46), --- Crossover: 9&16 on 03-08-2020(4.32),05-08-2020(4.3),Running on 07-08-2020, 21:41
+Run Date: 07-08-2020, 21:41 --- Stock: AHC --- Current Price: 1.68 --- Crossover: 9&13 on 06-08-2020(1.66), --- Crossover: 9&16 on 06-08-2020(1.66)Run Date: 07-08-2020, 21:41 --- Stock: AKR --- Current Price: 12.45 --- Crossover: 9&13 on 03-08-2020(11.72), --- Crossover: 9&16 on 03-08-2020(11.72)Run Date: 07-08-2020, 21:41 --- Stock: AGRO --- Current Price: 4.38 --- Crossover: 9&13 on 06-08-2020(4.46), --- Crossover: 9&16 on 03-08-2020(4.32),05-08-2020(4.3)Running on 07-08-2020, 21:42
+07-08-2020, 21:42 --- AHC --- Current Price: 1.68 --- Crossover: 9&13 on 06-08-2020(1.66), --- Crossover: 9&16 on 06-08-2020(1.66)07-08-2020, 21:42 --- AKR --- Current Price: 12.455 --- Crossover: 9&13 on 03-08-2020(11.72), --- Crossover: 9&16 on 03-08-2020(11.72)07-08-2020, 21:42 --- AGRO --- Current Price: 4.38 --- Crossover: 9&13 on 06-08-2020(4.46), --- Crossover: 9&16 on 03-08-2020(4.32),05-08-2020(4.3)Running on 07-08-2020, 21:43
+07-08-2020, 21:43 --- AHC --- Current Price: 1.68 --- Crossover: 9&13 on 06-08-2020(1.66), --- Crossover: 9&16 on 06-08-2020(1.66)07-08-2020, 21:43 --- AKR --- Current Price: 12.4501 --- Crossover: 9&13 on 03-08-2020(11.72), --- Crossover: 9&16 on 03-08-2020(11.72)07-08-2020, 21:43 --- AGRO --- Current Price: 4.408 --- Crossover: 9&13 on 06-08-2020(4.46), --- Crossover: 9&16 on 03-08-2020(4.32),05-08-2020(4.3)Running on 07-08-2020, 21:43
+
+
+
+Running on 07-08-2020, 21:44
+07-08-2020, 21:44 --- AHC --- Current Price: 1.68 --- Crossover: 9&13 on 06-08-2020(1.66), --- Crossover: 9&16 on 06-08-2020(1.66)
+07-08-2020, 21:44 --- AKR --- Current Price: 12.4501 --- Crossover: 9&13 on 03-08-2020(11.72), --- Crossover: 9&16 on 03-08-2020(11.72)
+07-08-2020, 21:44 --- AGRO --- Current Price: 4.408 --- Crossover: 9&13 on 06-08-2020(4.46), --- Crossover: 9&16 on 03-08-2020(4.32),05-08-2020(4.3)
+Running on 07-08-2020, 21:54
+07-08-2020, 21:54 --- AGRO --- Current Price: 4.435 --- Crossover: 9&13 on 06-08-2020(4.46) --- Crossover: 9&16 on 03-08-2020(4.32), 05-08-2020(4.3)
+Running on 07-08-2020, 21:55
+07-08-2020, 21:55 -- AGRO -- Current Price: 4.435 -- Crossover: 9&13 on 06-08-2020(4.46) -- Crossover: 9&16 on 03-08-2020(4.32), 05-08-2020(4.3
+Running on 07-08-2020, 21:56
+07-08-2020, 21:56 -- AGRO -- Current Price: 4.435 -- Crossover: 9&13 on 06-08-2020(4.46) -- Crossover: 9&16 on 03-08-2020(4.32), 05-08-2020(4.3)
+Running on 08-08-2020, 10:33
+Running on 08-08-2020, 10:38
+08-08-2020, 10:38 -- ERF -- Current Price: 2.98 -- Crossover: 9&21 on 04-08-2020(2.7) -- Crossover: 9&55 on 05-08-2020(2.92)
