@@ -1,5 +1,6 @@
-CANDLE_SIZE_SET = ["day", "60minute", "5minute"]  # 1minute, 15minute, 30minute, 60minute, day, weekly, monthly
+CANDLE_SIZE_SET = ["day", "60minute", "15minute"]  # 1minute, 15minute, 30minute, 60minute, day, weekly, monthly
 # CANDLE_SIZE_SET = ["monthly", "weekly", "day"]    # 1minute, 15minute, 30minute, 60minute, day, weekly, monthly
+DIFFERENCE_TIME_FRAME = ["day", "60minute"]     # (day - 60minute)
 RSI_A = 45
 RSI_B = 55
 WRITE_TO_FILE = True
@@ -123,13 +124,14 @@ def get_crossovers(rsi_data_points):
             pass
     return crossing_list
 
-def print_range(range_data, stock):
+def print_range(range_data, stock, alerts):
     if range_data == None or not isinstance(range_data, list):
         return
     print_str = ""
+    range_data.extend(alerts)
     for each_range in range_data:
         print_str += each_range + "    "
-    print('%-10s  ---------------> %10s' % (stock, print_str))
+    print('%-10s  -----> %s' % (stock, print_str))
     
 def write_to_file(range_list, stock):
     write_list = []
@@ -162,6 +164,21 @@ def get_range(last_candle_rsi, stock):
     else:
         return None
 
+def get_alerts(last_rsi):
+    alerts = []
+    try:
+        if len(DIFFERENCE_TIME_FRAME) != 2:
+            raise Exception
+        if (last_rsi[DIFFERENCE_TIME_FRAME[0]] - last_rsi[DIFFERENCE_TIME_FRAME[1]]) > 15:
+            alerts.append("Alert-1  ")
+        if (last_rsi["15minute"] < 40):
+            alerts.append("Alert-2  ")
+    except Exception:
+        pass
+    finally:
+        return alerts
+
+
 def main():
     zerodha = get_zerodha_client(ZERODHA_CONFIG)
     instruments = zerodha.instruments("NSE")
@@ -178,16 +195,18 @@ def main():
     for stock in stock_list:
         try:
             range_list = []
+            last_rsi = {}
             for CANDLE_SIZE in CANDLE_SIZE_SET:
                 candles = get_data_of_stock(zerodha, stock, CANDLE_SIZE)
                 rsi = RSIIndicator(close=candles['close'], n=RSI_DAYS)
+                last_rsi[CANDLE_SIZE] = rsi.rsi().tail(CANDLES_TO_OBSERVE)
                 if (CANDLES_TO_OBSERVE == 1):
                     range_stock = get_range(rsi.rsi().tail(CANDLES_TO_OBSERVE), stock["stock"])
                     range_list.append(range_stock)
                 else:
                     crossovers = get_crossovers(rsi.rsi().tail(CANDLES_TO_OBSERVE))
                     print_crossovers(crossovers, stock["stock"])
-                # time.sleep(0.1)
+            alerts = get_alerts(last_rsi)
             print_range(range_list, stock["stock"])
             if WRITE_TO_FILE:
                 write_to_file(range_list, stock["stock"])
