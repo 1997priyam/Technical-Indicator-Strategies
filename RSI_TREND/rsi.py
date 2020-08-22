@@ -173,7 +173,7 @@ def get_alerts(last_rsi):
             alerts.append("Alert-1  ")
         if (last_rsi["15minute"] < 40):
             alerts.append("Alert-2  ")
-    except Exception:
+    except Exception as e:
         pass
     finally:
         return alerts
@@ -186,7 +186,7 @@ def main():
     print_str = ""
     for candle in CANDLE_SIZE_SET:
         print_str += candle + "    "
-    print("                               {}".format(print_str))
+    print("                     {}".format(print_str))
     row = ["STOCK"]
     row.extend(CANDLE_SIZE_SET)
     with open("rsi.csv", "w") as write_file:
@@ -199,7 +199,7 @@ def main():
             for CANDLE_SIZE in CANDLE_SIZE_SET:
                 candles = get_data_of_stock(zerodha, stock, CANDLE_SIZE)
                 rsi = RSIIndicator(close=candles['close'], n=RSI_DAYS)
-                last_rsi[CANDLE_SIZE] = rsi.rsi().tail(CANDLES_TO_OBSERVE)
+                last_rsi[CANDLE_SIZE] = rsi.rsi().tail(CANDLES_TO_OBSERVE).iloc[0]
                 if (CANDLES_TO_OBSERVE == 1):
                     range_stock = get_range(rsi.rsi().tail(CANDLES_TO_OBSERVE), stock["stock"])
                     range_list.append(range_stock)
@@ -207,7 +207,7 @@ def main():
                     crossovers = get_crossovers(rsi.rsi().tail(CANDLES_TO_OBSERVE))
                     print_crossovers(crossovers, stock["stock"])
             alerts = get_alerts(last_rsi)
-            print_range(range_list, stock["stock"])
+            print_range(range_list, stock["stock"], alerts)
             if WRITE_TO_FILE:
                 write_to_file(range_list, stock["stock"])
         except Exception as e:
