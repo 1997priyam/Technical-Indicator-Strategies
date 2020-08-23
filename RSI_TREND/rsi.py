@@ -16,8 +16,8 @@ import csv
 
 
 ZERODHA_CONFIG = {
-    "API_KEY": "",
-    "ACCESS_TOKEN": ""
+    "API_KEY": "crpko3b6x4nw47ym",
+    "ACCESS_TOKEN": "l894wRUWcmyAik3afgBQQJj0wvozlA31"
 }
 stock_list = [
     "ACC","ADANIENT","ADANIPORTS","AMARAJABAT","AMBUJACEM","APOLLOHOSP",
