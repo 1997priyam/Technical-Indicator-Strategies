@@ -145,7 +145,6 @@ if __name__ == "__main__":
         write_file.write("Running on {}\n".format(run_date))
         print("Running on {}".format(run_date))
     tickers = get_tickers_from_file(TICKER_FILE)
-    p = multiprocessing.Pool(multiprocessing.cpu_count())
-    p.map(actual_processor, tickers)
-    p.close()
-    p.join()
+    with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
+        prList = [pool.apply_async(actual_processor, [ticker]) for ticker in tickers]
+        [res.wait() for res in prList]

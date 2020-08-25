@@ -1,6 +1,6 @@
-DAYS_TO_OBSERVE = 5
-DECIMAL_PLACES = 2
-DURATION_OF_DATA = 80
+DAYS_TO_OBSERVE = 20
+DECIMAL_PLACES = 1
+DURATION_OF_DATA = 90
 EMA_FOR_DAYS = [5, 13, 26]
         #9, 21, 55
         # 5, 13, 26
@@ -8,6 +8,7 @@ EMA_FOR_DAYS = [5, 13, 26]
         # 13, 55
         # 20, 50, 200
 TICKER_FILE = "../tickers_nse.csv"
+# TICKER_FILE = "../tickers_bse.csv"
 CLOSE_COLUMN = "Close"
 
 import csv
@@ -20,6 +21,8 @@ import datetime
 import nsepy
 from ta.trend import EMAIndicator, SMAIndicator
 import multiprocessing
+
+FILE_LOCK = multiprocessing.Lock()
 
 def get_data_of_stock(stock, duration):
     startDate = datetime.datetime.today() - datetime.timedelta(duration)
@@ -118,9 +121,15 @@ def calculate(candles, days):
     candles[ema_name] = get_ema(candles[CLOSE_COLUMN], days)
 
 def dump_set_to_file(stock):
-    with open(FINAL_FILENAME, 'a') as final_file:
-        final_file.write("{}\n".format(stock))
-        print("CROSSOVER--> {}".format(stock))
+    try:
+        with FILE_LOCK:
+            with open(FINAL_FILENAME, 'a') as final_file:
+                final_file.write("{}\n".format(stock))
+                print("CROSSOVER--> {}".format(stock))
+    except Exception as e:
+        print(e)
+        raise e
+
 
 
 def actual_processor(stock):
@@ -134,13 +143,12 @@ def actual_processor(stock):
             dump_set_to_file(stock)
     except Exception as e:
         print(e)
+        raise e
 
 if __name__ == '__main__':
     with open(FINAL_FILENAME, "w"):
         pass
     stock_list = get_tickers_from_file(TICKER_FILE)
-    p = multiprocessing.Pool(multiprocessing.cpu_count())
-    p.map(actual_processor, stock_list)
-    p.close()
-    p.join()
-        
+    with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
+        prList = [pool.apply_async(actual_processor, [ticker]) for ticker in stock_list]
+        [res.wait() for res in prList]
