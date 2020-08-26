@@ -5,7 +5,7 @@ DAYS_TO_OBSERVE = 5
 TICKER_FILE = "../tickers_nse.csv"
 DATE_COLUMN = "Date"
 CLOSE_COLUMN = "Close"
-
+WRITE_TO_FILE = False
 
 import datetime
 import requests
@@ -110,10 +110,11 @@ def dump_to_file(run_date, ticker, price, crossover_data):
         crossover_dates_price = crossover_dates_price[:-2]
         print_string += "Crossover: {} on {} -- ".format(crossover_ema_days, crossover_dates_price)
     print_string = print_string[:-4]
-    with FILE_LOCK:
-        with open(FILENAME, "a") as final_file:
-            print(print_string)
-            final_file.write("{}\n".format(print_string))
+    print(print_string)
+    if WRITE_TO_FILE:
+        with FILE_LOCK:
+            with open(FILENAME, "a") as final_file:
+                final_file.write("{}\n".format(print_string))
 
 def get_tickers_from_file(filename):
     tickers = []

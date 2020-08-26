@@ -10,6 +10,7 @@ EMA_FOR_DAYS = [5, 13, 26]
 TICKER_FILE = "../tickers_nse.csv"
 # TICKER_FILE = "../tickers_bse.csv"
 CLOSE_COLUMN = "Close"
+WRITE_TO_FILE = False
 
 import csv
 from functools import reduce
@@ -122,10 +123,11 @@ def calculate(candles, days):
 
 def dump_set_to_file(stock):
     try:
-        with FILE_LOCK:
-            with open(FINAL_FILENAME, 'a') as final_file:
-                final_file.write("{}\n".format(stock))
-                print("CROSSOVER--> {}".format(stock))
+        print("CROSSOVER--> {}".format(stock))
+        if WRITE_TO_FILE:
+            with FILE_LOCK:
+                with open(FINAL_FILENAME, 'a') as final_file:
+                    final_file.write("{}\n".format(stock))
     except Exception as e:
         print(e)
         raise e
